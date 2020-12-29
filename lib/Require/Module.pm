@@ -220,11 +220,13 @@ L<Module::Runtime>.
 
 =head2 use_package_optimistically
 
+Try to load the given module. Returns the module name. Throws an error if there
+was a compilation error.
+
 =head2 try_require_module
 
-Try to load the module given, and return a true or false value based on if it
-succeeded or failed. If there is a compilation failure while loading the module,
-it will be thrown.
+Try to load the given module. Returns true if the module was loaded, false if
+the module was not found, and throws an error if there was a compilation error.
 
 =head1 WHY Require::Module
 
@@ -286,13 +288,11 @@ additional parameter. We avoid this by using C<($@)> prototypes in those cases.
 
 =item * More useful optional module loading
 
-While the L</use_package_optimistically> function is provided for compatibility,
-its behavior rarely seems to be what people want. C<use_package_optimistically>
-returns the module name for missing or existing modules, as long as there wasn't
-a compilation error. To detect if the module was actually loaded, which seems
-to be the most commonly desired behavior, requires an additional check. The
-L</try_require_module> function returns a true or false value to make this
-easier.
+L</use_module_optimistically> returns the module name (or throws an exception)
+even if the module was missing. The module name is usually not a useful return
+value for a module that may not have been loaded at all. We additionally provide
+the L</try_require_module> function, which returns a false value for missing
+modules. This is much more useful to use in conditionals.
 
 =item * Removed unused functions
 
