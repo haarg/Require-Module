@@ -1,8 +1,13 @@
 package Require::Module;
+# we don't want to load any modules, not even strict. But we need to make sure
+# the hints are set predictably, and to avoid the -w flag having an impact.
+# These are the only portable values we can use.
 BEGIN {
   $^H = 0;
   ${^WARNING_BITS} = '';
 }
+# This module should be strict and warnings clean, so allow them to be enabled
+# via environment for testing.
 BEGIN {
   if ($ENV{RELEASE_TESTING}) {
     require strict;
@@ -202,31 +207,60 @@ This module is modeled after L<Module::Runtime> but aims to fix various issues
 with that module. It is meant to be compatible with 99% of uses of
 L<Module::Runtime>.
 
-=head1 EXPORTS
+=head1 FUNCTIONS
 
-=head2 $module_name_rx
+=head2 is_module_name ($module)
 
-=head2 is_module_name
+Returns true if the given value is a valid module name, false otherwise.
 
-=head2 check_module_name
+=head2 check_module_name ($module)
 
-=head2 module_notional_filename
+Throws an error if the given value is not a valid module name.
 
-=head2 require_module
+=head2 module_notional_filename ($module)
 
-=head2 require_file
+Converts a module name (e.g. C<Some::Module>) into the file name it would be
+loaded by using require or use (e.g. C<Some/Module.pm>).
 
-=head2 use_module
+=head2 require_module ($module)
 
-=head2 use_package_optimistically
+Loads the given module. Has the same return value as L<perlfunc/require>. Throws
+errors if loading the module fails.
+
+=head2 require_file ($file)
+
+Loads the given file name. Works exactly the same as L<perlfunc/require>, except
+providing the same additional protections on older perl versions as
+L<require_module|/require_module ($module)>.
+
+=head2 use_module ($module [, $version])
+
+Loads the given module. If the version is specified, a version check will be
+done like L<perlfunc/use> would. Throws an error if loading the module fails or
+if the version check fails. Returns the module name.
+
+=head2 use_package_optimistically ($module [, $version])
 
 Try to load the given module. Returns the module name. Throws an error if there
-was a compilation error.
+was a compilation error. If a version is specified, a version check will be
+done. Throws an error if the version check fails.
 
-=head2 try_require_module
+=head2 try_require_module ($module [, $version])
 
 Try to load the given module. Returns true if the module was loaded, false if
 the module was not found, and throws an error if there was a compilation error.
+If a version is specified, does a version check. Returns false if the version
+check fails.
+
+=head1 EXPORTS
+
+All of the functions listed above can be exported.
+
+Additional exports available:
+
+=head2 $module_name_rx
+
+A regular expression to match module names.
 
 =head1 WHY Require::Module
 
@@ -288,11 +322,13 @@ additional parameter. We avoid this by using C<($@)> prototypes in those cases.
 
 =item * More useful optional module loading
 
-L</use_module_optimistically> returns the module name (or throws an exception)
-even if the module was missing. The module name is usually not a useful return
-value for a module that may not have been loaded at all. We additionally provide
-the L</try_require_module> function, which returns a false value for missing
-modules. This is much more useful to use in conditionals.
+L<use_package_optimistically|/use_package_optimistically ($module [, $version])>
+returns the module name (or throws an exception) even if the module was missing.
+The module name is usually not a useful return value for a module that may not
+have been loaded at all. We additionally provide the
+L<try_require_module|/try_require_module ($module [, $version])> function, which
+returns a false value for missing modules. This is much more useful to use in
+conditionals.
 
 =item * Removed unused functions
 
@@ -319,6 +355,8 @@ be used like this one.
 =item L<Module::Require>
 
 =item L<UNIVERSAL::Require>
+
+=item L<Class::Load>
 
 =back
 
