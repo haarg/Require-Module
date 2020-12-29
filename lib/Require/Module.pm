@@ -26,25 +26,34 @@ our @EXPORT_OK = qw(
   use_package_optimistically
   try_require_module
 );
+my %EXPORT_OK = map +($_ => 1), @EXPORT_OK;
 
 sub import {
   shift;
-  my @import = @_;
-  s/\A&(?=\w)// for @import;
-  if (my @bad = grep { my $sub = $_; !grep $_ eq $sub, @EXPORT_OK } @import) {
-    die sprintf "Can't import %s at %s line %s.\n", join(' or ', map "'$_'", @bad), (caller)[1,2];
-  }
   my $caller = caller;
-  my @scalar;
-  my @sub;
-  for my $import (@import) {
+
+  my @bad;
+  for my $import (@_) {
     BEGIN { $ENV{RELEASE_TESTING} and strict->unimport('refs') }
-    if ($import =~ /\A\$(.*)/s) {
+    if (!exists $EXPORT_OK{$import}) {
+      push @bad, $import;
+      next;
+    }
+    elsif ($import =~ /\A\$(.*)/s) {
       *{"${caller}::$import"} = \${$1};
     }
     else {
       *{"${caller}::$import"} = \&$import;
     }
+  }
+  if (@bad) {
+    die sprintf("%s at %s line %s.\n",
+      join("\n",
+        (map qq["$_" is not exported by the ].__PACKAGE__.qq[ module], @bad),
+        q[Can't continue after import errors],
+      ),
+      (caller)[1,2],
+    );
   }
 }
 
