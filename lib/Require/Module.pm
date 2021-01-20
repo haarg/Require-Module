@@ -291,8 +291,8 @@ Why not use the established solution?
 
 =item * No non-core prerequisites
 
-This module has no prerequisites that don't ship with perl 5.8. This is a
-with Module::Runtime.
+This module has no prerequisites that don't ship with perl 5.8. Module::Runtime
+depends on Module::Build, which is not in core in perl 5.8 or 5.22+.
 
 =item * Doesn't interfere with core hooks
 
