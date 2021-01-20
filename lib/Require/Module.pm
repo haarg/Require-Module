@@ -140,14 +140,14 @@ sub use_module ($@) {
   if (@_) {
     $module->VERSION(@_);
   }
-  return $name;
+  return $module;
 }
 
 sub use_package_optimistically ($@) {
   my $module = shift;
   my $file = module_notional_filename($module);
   if (
-    ! eval { require_module($name); 1 } && (
+    ! eval { require_module($module); 1 } && (
       $@ !~ /\ACan't locate \Q$file\E /
     ||
       $@ =~ /\A^Compilation\ failed\ in\ require /
@@ -158,7 +158,7 @@ sub use_package_optimistically ($@) {
   if (@_) {
     $module->VERSION(@_);
   }
-  return $name;
+  return $module;
 }
 
 # XXX provide error in $@ ?  include version check?
@@ -168,7 +168,7 @@ sub try_require_module ($@) {
   my $e;
   {
     local $@;
-    eval { require_module($name); 1 } or $e = $@;
+    eval { require_module($module); 1 } or $e = $@;
   }
   if (
     defined $e && (
