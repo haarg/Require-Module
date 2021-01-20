@@ -344,19 +344,19 @@ be used like this one.
 
 =over 4
 
-=item L<Module::Runtime>
+=item * L<Module::Runtime>
 
-=item L<Module::Load>
+=item * L<Module::Load>
 
-=item L<Module::Use>
+=item * L<Module::Use>
 
-=item L<Module::Loader>
+=item * L<Module::Loader>
 
-=item L<Module::Require>
+=item * L<Module::Require>
 
-=item L<UNIVERSAL::Require>
+=item * L<UNIVERSAL::Require>
 
-=item L<Class::Load>
+=item * L<Class::Load>
 
 =back
 
